@@ -1,0 +1,27 @@
+prices={'apple':30, 'milk':50}
+
+class Basket:
+    def __init__(self):
+        self.__value={}
+        
+    def add(self, desc, seller, price, curr):
+        if price<0:
+            raise ValueError
+        self.__value[desc]=price + self.getBalance(desc)
+        
+    def remove(self, desc, seller, price, curr):
+        if price<0 or price>self.__value[desc]:
+            raise ValueError
+        self.__value[desc]=self.getBalance(desc) - price
+        
+    def getBalance(self, desc):
+        if desc not in self.__value:
+            return 0
+        return self.__value[desc]
+        
+    def value(self):
+        total=0
+        for k,v in self.__value.items():
+            total+=v*prices[k]
+        return total
+        
