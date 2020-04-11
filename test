@@ -1,27 +1,50 @@
-prices={'apple':30, 'milk':50}                                   # products = I think we need to use a dictonary into another dictionary
-                                                                               #with description, seller, price and curr. Not sure
+import json
+import requests
+                                                     
 class Basket:
     def __init__(self):
         self.__value={}
         
-    def add(self, desc, seller, price, curr):                     # def add(self, sku, qty):
-        if price<0:                                               # self.__value[sku] = self.getBalance(sku) + qty
-            raise ValueError
-        self.__value[desc]=price + self.getBalance(desc)
+def add(self, sku, Product, price):
+        if Product in self.__value:
+            self.__value[Product]["quantity"]+=1 
+        else:
+            self.__value[Product] = {"Product" : Product, "quantity" : 1, "price" : price}
         
-    def remove(self, desc, seller, price, curr):                 # def remove(self, sku, qty):
-        if price<0 or price>self.__value[desc]:                  # self.__value[sku] = self.getBalance(sku) - qty
-            raise ValueError
-        self.__value[desc]=self.getBalance(desc) - price
+    def remove(self, sku, Product, price):
+        self.__value[Product]["quantity"]-=1
+        if self.__value[Product]["quantity"]==0:
+            del self.__value[Product] 
         
-    def getBalance(self, desc):                                  # def getBalance(self, sku):
-        if desc not in self.__value:                             # if sku not in self.__value:
-            return 0                                             # return 0
-        return self.__value[desc]                                # return self.__value[sku]
+    def getContents(self):
+        return '\n'.join("{}".format(v) for v in self.__value.values())
+    
+    def getRate(self):
+        results=requests.get('https://api.exchangeratesapi.io/latest')
+        CAD=json.loads(results.content)['rates']['CAD']
+        USD=json.loads(results.content)['rates']['USD']
+        print(CAD,USD)
         
-    def value(self):
-        total=0
-        for k,v in self.__value.items():
-            total+=v*prices[k]
-        return total
+        v = 0
+        x = 0
+        for item in self.__value.values():
+            v = CAD * item["price"]
+            print ("Value in CAD",item["Product"], v)
+            x = USD * item["price"]
+            print ("Value in USD", item["Product"], x)
+    
         
+    def getValue(self):
+        value = 0
+        for item in self.__value.values():
+            value = value + item["quantity"] * item["price"]
+        return value
+        
+class Product:
+    
+    def ap(self,sku,description,seller,price,currency):
+        self.sku = sku
+        self.description = description
+        self.seller = seller
+        self.price = price
+        self.currency = currency
